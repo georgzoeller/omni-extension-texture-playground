@@ -1,0 +1,7 @@
+title: "3D Texture Playground "
+version: "1.0.0"
+author: "Georg Zoeller"
+description: "An extension implementing a basic texture playground using Babylon.js."
+origin: https://github.com/georgzoeller/omni-extension-texture-playground
+client:
+  addToWorkbench: true

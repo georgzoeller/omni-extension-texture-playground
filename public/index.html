@@ -31,9 +31,15 @@
 	<script>
         const urlParams = new URLSearchParams(window.location.search)
         // Extract the key from the URL parameters
-        const sphereMat = urlParams.get('sphereMat') || "/fid/1802,0165c9f44453"
+        const sphereMat = urlParams.get('sphereMat')
 
         const canvas = document.getElementById("renderCanvas"); // Get the canvas element
+
+        // Connect to the omnitool client
+        const client = window.parent.client
+
+
+
         const engine = new BABYLON.Engine(canvas, true); // Generate the BABYLON 3D engine
         const createScene = function () {
             // This creates a basic Babylon Scene object (non-mesh)
@@ -72,6 +78,21 @@
         };
         const scene = createScene(); //Call the createScene function
         // Register a render loop to repeatedly render the scene
+
+          // Subscribe to the chat service to collect any incoming chat message that may have an image
+          client.subscribeToServiceEvent('chat','chat_message_added', (message) => {
+            console.log('chat_message_added', message)
+            // If we have an image, map it to the globe
+            if (message.attachments && message.images?.length > 0)
+            {
+                const texture = '/fid/' + message.images[0].ticket.fid
+
+                const sphere = scene.getMeshByName('sphere')
+                sphere.material.diffuseTexture = new BABYLON.Texture(texture, scene);
+            }
+        })
+
+
         engine.runRenderLoop(function () {
                 scene.render();
         });

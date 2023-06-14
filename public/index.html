@@ -47,7 +47,7 @@
 
         // Creates, angles, distances and targets the camera
         const camera = new BABYLON.ArcRotateCamera("Camera", 0, 0, 10, new BABYLON.Vector3(0, 0, 0), scene);
-
+        camera.inertia = 0.4
 
         // This attaches the camera to the canvas
         camera.attachControl(canvas, true);
@@ -79,12 +79,35 @@
         // Move the sphere upward 1/2 its height
         sphere.position.y = 1;
         // Our built-in 'ground' shape.
-        const ground = BABYLON.MeshBuilder.CreateGround(
+      /*  const ground = BABYLON.MeshBuilder.CreateGround(
           "ground",
           { width: 6, height: 6 },
           scene
-        );
-        ground.material = new BABYLON.StandardMaterial("grountMat", scene);
+        );*/
+
+      var grid = {
+          'h' : 1,
+          'w' : 1
+      };
+
+      const tiledGround = new BABYLON.MeshBuilder.CreateTiledGround("ground", {xmin: -3, zmin: -3, xmax: 3, zmax: 3, subdivisions: grid}, scene);
+
+
+      // Needed variables to set subMeshes
+      const verticesCount = tiledGround.getTotalVertices();
+      const tileIndicesLength = tiledGround.getIndices().length / (grid.w * grid.h);
+
+      // Set subMeshes of the tiled ground
+      tiledGround.subMeshes = [];
+      let base = 0;
+      for (let row = 0; row < grid.h; row++) {
+          for (let col = 0; col < grid.w; col++) {
+              tiledGround.subMeshes.push(new BABYLON.SubMesh(row%2 ^ col%2, 0, verticesCount, base , tileIndicesLength, tiledGround));
+              base += tileIndicesLength;
+          }
+      }
+
+        tiledGround.material = new BABYLON.StandardMaterial("grountMat", scene);
         return scene;
       };
       const scene = createScene(); //Call the createScene function
@@ -102,16 +125,34 @@
           console.log("chat_message_added", message);
           // If we have an image, map it to the globe
           if (message.attachments && message.images?.length > 0) {
+
             const texture = "/fid/" + message.images[0].ticket.fid;
 
             const sphere = scene.getMeshByName("sphere");
             const ground = scene.getMeshByName("ground");
-            ground.material.diffuseTexture = sphere.material.diffuseTexture = new BABYLON.Texture(
+
+            if ((message.text || message.html) && (message.text||message.html).indexOf('normal') > -1)
+            {
+
+              ground.material.bumpTexture = sphere.material.bumpTexture = new BABYLON.Texture(
               texture,
               scene
-            );
+              )
+            }
+            else
+            {
 
-            ground.material.diffuseTexture
+              ground.material.diffuseTexture = sphere.material.diffuseTexture = new BABYLON.Texture(
+                texture,
+                scene
+              );
+
+              /*sphere.diffuseTexture.uScale = 2.0;*/
+              ground.material.diffuseTexture.vScale = 0.5;
+
+            }
+
+
           }
 
 

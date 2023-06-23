@@ -131,27 +131,34 @@
             const sphere = scene.getMeshByName("sphere");
             const ground = scene.getMeshByName("ground");
 
-            if ((message.text || message.html) && (message.text||message.html).indexOf('normal') > -1)
+            try
             {
 
-              ground.material.bumpTexture = sphere.material.bumpTexture = new BABYLON.Texture(
-              texture,
-              scene
-              )
-            }
-            else
-            {
+              if ((message.text || message.html) && (message.text||message.html).indexOf('normal') > -1)
+              {
 
-              ground.material.diffuseTexture = sphere.material.diffuseTexture = new BABYLON.Texture(
+                ground.material.bumpTexture = sphere.material.bumpTexture = new BABYLON.Texture(
                 texture,
                 scene
-              );
+                )
+              }
+              else
+              {
 
-              /*sphere.diffuseTexture.uScale = 2.0;*/
-              ground.material.diffuseTexture.vScale = 0.5;
+                ground.material.diffuseTexture = sphere.material.diffuseTexture = new BABYLON.Texture(
+                  texture,
+                  scene
+                );
 
-            }
+                /*sphere.diffuseTexture.uScale = 2.0;*/
+                ground.material.diffuseTexture.vScale = 0.5;
 
+              }
+          }
+          catch (ex)
+          {
+            console.log("Extension error", ex);
+          }
 
           }
 
